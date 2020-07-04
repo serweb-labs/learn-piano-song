@@ -1,5 +1,7 @@
-# learning-piano
+# learning-piano-song (work in progress)
 
+## stack
+PixiJS + Tone.js + Vue.js (ts)
 ## Project setup
 ```
 npm install
@@ -19,6 +21,3 @@ npm run build
 ```
 npm run lint
 ```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
