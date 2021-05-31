@@ -11,4 +11,4 @@ export const PIANO_KEYS = [
 export const PIANO_OCTAVES = ['1', '2', '3', '4', '5', '6', '7'];
 export const PIANO_OCTAVES_ENABLED = ['2', '3', '4', '5'];
 export const MAX_TRACKS = 1;
-export const PIECE_NAME = 'moonlight-sonata.mid';
+export const PIECE_NAME = 'dakiti.mid';

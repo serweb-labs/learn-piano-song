@@ -42,7 +42,7 @@ export class AssetsLoaderService {
 
     loadPiece(name: string, player: PiecePlayer) {
       const self = this;
-      return new Promise((resolve, reject) => Midi.fromUrl(`songs/${name}`)
+      return new Promise<void>((resolve, reject) => Midi.fromUrl(`songs/${name}`)
         .then((midi) => {
           const { name } = midi;
           const toWait: SheetNoteComponent[] = [];

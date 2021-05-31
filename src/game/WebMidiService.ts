@@ -9,7 +9,7 @@ export class WebMidiService {
 
   constructor() {
     const o = this;
-    this.ready = new Promise((resolve, reject) => {
+    this.ready = new Promise<void>((resolve, reject) => {
       navigator.requestMIDIAccess().then((m) => {
         o.midi = m;
         resolve();

@@ -9,9 +9,8 @@ export class Controls {
     }
 
     noteOn(note: string, velocity: number, act = true) {
-      velocity *= 0.1;
       const nameNote = Tone.Frequency(note, 'midi').toNote();
-      // console.log('on', nameNote, velocity);
+      console.log('on', nameNote, velocity);
       this.shared.instruments.piano.triggerAttack(nameNote, undefined, velocity);
       if (act) this.shared.notesSpritePool[nameNote.replace('#', 's')].visible = true;
     }

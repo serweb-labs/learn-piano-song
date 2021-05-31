@@ -6,6 +6,8 @@ import { MyIterator } from './commons';
 export class PiecePlayer {
     fromTime = 0;
 
+    score = 0;
+
     time = 0;
 
     isPaused = false;
@@ -27,6 +29,8 @@ export class PiecePlayer {
     toEnd: SheetNoteComponent[] = [];
 
     _autoResume = false;
+
+    _slowMode = false;
 
     constructor(updateInterval: number, controls: Controls) {
       this.updateInterval = updateInterval || 100;
@@ -55,6 +59,7 @@ export class PiecePlayer {
     }
 
     start() {
+      this.reset();
       this.isRunning = true;
       this.fromTime = new Date().getTime();
       this.watch = setInterval(() => this.update(), this.updateInterval);
@@ -83,12 +88,26 @@ export class PiecePlayer {
     reset() {
       this.time = 0;
       this.isPaused = false;
-      this.start();
+      this.isRunning = false;
     }
+
+    needResume() {
+      return this.isPaused && this._slowMode;
+    }
+
+    enableSlowMode() {
+      this._slowMode = true;
+    }
+
+    disableSlowMode() {
+      this._slowMode = false;
+    }
+
 
     playMidiTick() {
       const progress = this.time;
       const self = this;
+
       this.toWait.forEach((note, index, arr) => {
         if (progress > (note.n.time * 1000)) {
           note.draw();
@@ -97,6 +116,7 @@ export class PiecePlayer {
           arr.splice(index, 1);
         }
       });
+
       this.toInit.forEach((note, index, arr) => {
         const init = (note.n.time * 1000) + 5000;
         if (progress > init) {
@@ -105,6 +125,7 @@ export class PiecePlayer {
           arr.splice(index, 1);
         }
       });
+
       this.toEnd.forEach((note, index, arr) => {
         const end = ((note.n.time * 1000) + 5000) + (note.n.duration * 1000);
         if (progress > end) {
@@ -112,12 +133,20 @@ export class PiecePlayer {
           arr.splice(index, 1);
         }
       });
+
       for (const key in this.byKey) {
         if (this.byKey.hasOwnProperty(key)) {
           const element = self.byKey[key];
           if (element.current && !element.current.done) {
+
+            if (self.time > element.current.value.n.time * 1000 + 5000 + 150) {
+              if (this._slowMode) {
+                this.pause();
+              }
+            }
+
             if (self.time > element.current.value.n.time * 1000 + 5000 + 301) {
-              // console.log('nota perdida', key, self.time, element.current.value.n.time * 1000 + 5000);
+              console.log('nota perdida', key, self.time, element.current.value.n.time * 1000 + 5000);
               element.current.value.markAsMiss();
               element.last = element.current;
               element.current = element.iterator.next();
@@ -139,12 +168,14 @@ export class PiecePlayer {
             this.byKey[name].current.value.sustainIn();
             this.byKey[name].last = this.byKey[name].current;
             this.byKey[name].current = this.byKey[name].iterator.next();
+            this.score += 2;
           } else if (valTime < this.time + 300) {
             // console.log('nota early', name);
             this.byKey[name].current.value.markAsEarly();
             this.byKey[name].current.value.sustainIn();
             this.byKey[name].last = this.byKey[name].current;
             this.byKey[name].current = this.byKey[name].iterator.next();
+            this.score += 1;
           }
           // console.log(valTime, this.time, 'a');
         } else if (valTime < this.time) {
@@ -160,6 +191,7 @@ export class PiecePlayer {
             this.byKey[name].current.value.sustainIn();
             this.byKey[name].last = this.byKey[name].current;
             this.byKey[name].current = this.byKey[name].iterator.next();
+            this.score += 1;
           }
           // console.log(valTime, this.time, 'b');
         }

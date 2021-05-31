@@ -19,6 +19,7 @@ export class GameInputsService {
     init() {
       const self = this;
       // midi
+      this.player.enableSlowMode();
       this.midi.inOpen((message: any) => {
         const command = message.data[0];
         const note = message.data[1];
@@ -27,7 +28,10 @@ export class GameInputsService {
         switch (command) {
           case 144:
             if (velocity > 0) {
-              self.controls.noteOn(note, velocity, true);
+              if (this.player.needResume()) {
+                this.player.resume();
+              }
+              self.controls.noteOn(note, velocity / 128, true);
               self.player.keyPress(Tone.Frequency(note, 'midi').toNote());
             } else {
               self.controls.noteOff(note);
@@ -42,16 +46,30 @@ export class GameInputsService {
       });
 
       // keys
-      document.body.onkeyup = function (e) {
-        if (e.keyCode == 32) {
-          if (!self.player.isRunning) {
-            self.player.start();
-          } else if (self.player.isPaused) {
-            self.player.resume();
-          } else {
-            self.player.pause();
-          }
+
+      document.body.addEventListener('keyup', (e) => {
+        console.log(`keyup event. key property value is "${e.key}"`);
+        switch (e.key) {
+          case ' ':
+            this.play();
+            break;
+          case 'Backspace':
+            this.player.start();
+            break;     
+          default:
+            break;
         }
-      };
+      });
     }
+
+    play() {
+      if (!this.player.isRunning) {
+        this.player.start();
+      } else if (this.player.isPaused) {
+        this.player.resume();
+      } else {
+        this.player.pause();
+      }
+    };
+    
 }
